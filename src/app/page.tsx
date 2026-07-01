@@ -105,9 +105,10 @@ function getPool(era: Era, weight: WeightClass): Fighter[] {
 
 export default function Home() {
   // Core game
-  const [slots,       setSlots]       = useState<Slots>({});
-  const [lockedSlots, setLockedSlots] = useState<Set<StatField>>(new Set());
-  const [result,      setResult]      = useState<GenerateResult | null>(null);
+  const [slots,           setSlots]           = useState<Slots>({});
+  const [lockedSlots,     setLockedSlots]     = useState<Set<StatField>>(new Set());
+  const [result,          setResult]          = useState<GenerateResult | null>(null);
+  const [selectedFighter, setSelectedFighter] = useState<Fighter | null>(null);
 
   // Round flow
   const [resetting, setResetting] = useState(false);
@@ -218,6 +219,7 @@ export default function Home() {
 
     setSlots(newSlots);
     setLockedSlots(newLocked);
+    setSelectedFighter(null);
     setLastPick({ name: f.name, slot: SLOT_METAS.find(m => m.key === key)!.label });
     setResultEra(era);
     setResultWeight(weight);
@@ -272,7 +274,7 @@ export default function Home() {
   // ── Reset entire game ────────────────────────────────────────────────────
   const resetGame = () => {
     setResult(null);
-    setSlots({}); setLockedSlots(new Set());
+    setSlots({}); setLockedSlots(new Set()); setSelectedFighter(null);
     setResetting(false); setLastPick(null);
     setEraRerollsLeft(1); setWeightRerollsLeft(1);
     setEra(null); setEraDisplay(null); setEraFlash(0);
@@ -537,6 +539,7 @@ export default function Home() {
                       locked={lockedSlots.has(m.key)}
                       active={slotActive(m.key)}
                       onAssign={(f) => assignSlot(m.key, f)}
+                      tapFighter={selectedFighter}
                     />
                   ))}
 
@@ -574,7 +577,14 @@ export default function Home() {
                         <div className={`grid grid-cols-2 xl:grid-cols-3 gap-3 max-h-[580px] overflow-y-auto pr-1
                                          transition-opacity duration-300 ${resetting ? 'opacity-25 pointer-events-none' : ''}`}>
                           {fighters.map(f => (
-                            <FighterCard key={`${f.name}|${f.era}`} fighter={f} />
+                            <FighterCard
+                              key={`${f.name}|${f.era}`}
+                              fighter={f}
+                              selected={selectedFighter?.name === f.name && selectedFighter?.era === f.era}
+                              onSelect={() => setSelectedFighter(prev =>
+                                prev?.name === f.name && prev?.era === f.era ? null : f
+                              )}
+                            />
                           ))}
                         </div>
                       )}
