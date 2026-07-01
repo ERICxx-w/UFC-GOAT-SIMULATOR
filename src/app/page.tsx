@@ -81,11 +81,24 @@ function pickEra(): Era {
   return ERAS[ERAS.length - 1];
 }
 
-// ── Fetch fighters helper ─────────────────────────────────────────────────────
-async function fetchPool(era: Era, weight: WeightClass): Promise<Fighter[]> {
-  const res = await fetch(`/api/fighters?era=${encodeURIComponent(era)}&weight=${weight}`);
-  if (!res.ok) return [];
-  return res.json();
+// ── Local fighter data ────────────────────────────────────────────────────────
+import ALL_FIGHTERS from '../../data/fighters.json';
+
+function getPool(era: Era, weight: WeightClass): Fighter[] {
+  const all = ALL_FIGHTERS as Fighter[];
+  let pool = all.filter(f => f.era === era && f.weight === weight);
+  if (pool.length < 3) {
+    const idx = ERAS.indexOf(era);
+    for (let off = 1; off <= ERAS.length && pool.length < 3; off++) {
+      if (idx - off >= 0)
+        pool = [...pool, ...all.filter(f => f.era === ERAS[idx - off] && f.weight === weight)];
+      if (idx + off < ERAS.length)
+        pool = [...pool, ...all.filter(f => f.era === ERAS[idx + off] && f.weight === weight)];
+    }
+  }
+  if (pool.length === 0) pool = all.filter(f => f.weight === weight);
+  if (pool.length === 0) pool = all.slice(0, 8);
+  return pool;
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -151,14 +164,9 @@ export default function Home() {
         setEraLocked(true);
         setTimeout(() => setEraLocked(false), 600);
 
-        // If weight was already set → auto-fetch with new era + same weight
+        // If weight was already set → load pool with new era + same weight
         if (keepWeight) {
-          setLoading(true);
-          try {
-            setFighters(await fetchPool(finalEra, keepWeight));
-          } finally {
-            setLoading(false);
-          }
+          setFighters(getPool(finalEra, keepWeight));
         }
       } else {
         setTimeout(tick, SCHEDULE[++step]);
@@ -192,12 +200,7 @@ export default function Home() {
         setWRolling(false);
         setWLocked(true);
         setTimeout(() => setWLocked(false), 600);
-        setLoading(true);
-        try {
-          setFighters(await fetchPool(keepEra, finalWeight));
-        } finally {
-          setLoading(false);
-        }
+        setFighters(getPool(keepEra, finalWeight));
       } else {
         setTimeout(tick, SCHEDULE[++step]);
       }
