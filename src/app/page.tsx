@@ -403,7 +403,11 @@ export default function Home() {
                         {era}
                       </div>
                       <div className="text-xs text-gray-500 mb-3">{ERA_LABELS[era]}</div>
-                      {eraRerollsLeft > 0 ? (
+                      {weight ? (
+                        <span className="text-[11px] text-gray-700">
+                          {eraRerollsLeft > 0 ? '年代已锁定（量级已选）' : '重转已用尽'}
+                        </span>
+                      ) : eraRerollsLeft > 0 ? (
                         <button
                           onClick={() => rollEra(true)}
                           className="text-[11px] text-yellow-700 hover:text-yellow-400 transition-colors"
