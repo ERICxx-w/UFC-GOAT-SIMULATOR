@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+
+body {
+  background-color: #07070f;
+  color: #fff;
+  font-family: 'Arial', 'Helvetica Neue', sans-serif;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(28px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.anim-slide-up  { animation: slideUp 0.55s ease-out both; }
+.anim-fade-in   { animation: fadeIn  0.7s  ease-out both; }
+
+.spinner {
+  width: 52px;
+  height: 52px;
+  border: 4px solid rgba(255, 215, 0, 0.2);
+  border-top-color: #ffd700;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+/* Slot-machine tick animation */
+@keyframes slotUp {
+  0%   { transform: translateY(70%);  opacity: 0;   filter: blur(2px); }
+  60%  { transform: translateY(-4%);  opacity: 1;   filter: blur(0);   }
+  100% { transform: translateY(0);    opacity: 1;   filter: blur(0);   }
+}
+.slot-up {
+  animation: slotUp 0.13s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Final lock-in flash */
+@keyframes lockIn {
+  0%   { letter-spacing: 0.25em; opacity: 0.6; }
+  100% { letter-spacing: normal; opacity: 1;   }
+}
+.lock-in {
+  animation: lockIn 0.35s ease-out both;
+}
+
+/* Pulsing glow border on active roll */
+@keyframes borderPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(255,215,0,0.25); }
+  50%       { box-shadow: 0 0 28px rgba(255,215,0,0.55); }
+}
+.rolling-glow {
+  animation: borderPulse 0.4s ease-in-out infinite;
+}
